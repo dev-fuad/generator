@@ -509,6 +509,15 @@ function main () {
     program.view = 'jade'
   }
 
+  // Default view engine
+  if ((program.auth === 'jwt' || program.auth === 'passport') && !program.mongoose) {
+    warning('mongoose is required for Auth\n' +
+      "use `--mongoose' or `--help' for additional options" +
+      'using mongoose for Auth...'
+    )
+    program.mongoose = true
+  }
+
   // Generate application
   emptyDirectory(destinationPath, function (empty) {
     if (empty || program.force) {

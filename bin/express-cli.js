@@ -55,6 +55,9 @@ program
   .option('-v, --view <engine>', 'add view <engine> support (dust|ejs|hbs|hjs|jade|pug|twig|vash) (defaults to jade)')
   .option('-c, --css <engine>', 'add stylesheet <engine> support (less|stylus|compass|sass) (defaults to plain css)')
   .option('    --git', 'add .gitignore')
+  .option('    --api', 'clean api template')
+  .option('    --mongoose', 'add mongoose')
+  .option('-a, --auth <authentication>', 'add authentication support (jwt|passport) (defaults to no-auth)')
   .option('-f, --force', 'force on non-empty directory')
   .parse(process.argv)
 
@@ -155,79 +158,101 @@ function createApplication (name, path) {
   app.locals.uses = []
 
   mkdir(path, function () {
-    mkdir(path + '/public', function () {
-      mkdir(path + '/public/javascripts')
-      mkdir(path + '/public/images')
-      mkdir(path + '/public/stylesheets', function () {
-        switch (program.css) {
-          case 'less':
-            copyTemplate('css/style.less', path + '/public/stylesheets/style.less')
+    if (!program.api) {
+      mkdir(path + '/public', function () {
+        mkdir(path + '/public/javascripts')
+        mkdir(path + '/public/images')
+        mkdir(path + '/public/stylesheets', function () {
+          switch (program.css) {
+            case 'less':
+              copyTemplate('css/style.less', path + '/public/stylesheets/style.less')
+              break
+            case 'stylus':
+              copyTemplate('css/style.styl', path + '/public/stylesheets/style.styl')
+              break
+            case 'compass':
+              copyTemplate('css/style.scss', path + '/public/stylesheets/style.scss')
+              break
+            case 'sass':
+              copyTemplate('css/style.sass', path + '/public/stylesheets/style.sass')
+              break
+            default:
+              copyTemplate('css/style.css', path + '/public/stylesheets/style.css')
+              break
+          }
+          complete()
+        })
+      })
+      mkdir(path + '/views', function () {
+        switch (program.view) {
+          case 'dust':
+            copyTemplate('dust/index.dust', path + '/views/index.dust')
+            copyTemplate('dust/error.dust', path + '/views/error.dust')
             break
-          case 'stylus':
-            copyTemplate('css/style.styl', path + '/public/stylesheets/style.styl')
+          case 'ejs':
+            copyTemplate('ejs/index.ejs', path + '/views/index.ejs')
+            copyTemplate('ejs/error.ejs', path + '/views/error.ejs')
             break
-          case 'compass':
-            copyTemplate('css/style.scss', path + '/public/stylesheets/style.scss')
+          case 'jade':
+            copyTemplate('jade/index.jade', path + '/views/index.jade')
+            copyTemplate('jade/layout.jade', path + '/views/layout.jade')
+            copyTemplate('jade/error.jade', path + '/views/error.jade')
             break
-          case 'sass':
-            copyTemplate('css/style.sass', path + '/public/stylesheets/style.sass')
+          case 'hjs':
+            copyTemplate('hogan/index.hjs', path + '/views/index.hjs')
+            copyTemplate('hogan/error.hjs', path + '/views/error.hjs')
             break
-          default:
-            copyTemplate('css/style.css', path + '/public/stylesheets/style.css')
+          case 'hbs':
+            copyTemplate('hbs/index.hbs', path + '/views/index.hbs')
+            copyTemplate('hbs/layout.hbs', path + '/views/layout.hbs')
+            copyTemplate('hbs/error.hbs', path + '/views/error.hbs')
+            break
+          case 'pug':
+            copyTemplate('pug/index.pug', path + '/views/index.pug')
+            copyTemplate('pug/layout.pug', path + '/views/layout.pug')
+            copyTemplate('pug/error.pug', path + '/views/error.pug')
+            break
+          case 'twig':
+            copyTemplate('twig/index.twig', path + '/views/index.twig')
+            copyTemplate('twig/layout.twig', path + '/views/layout.twig')
+            copyTemplate('twig/error.twig', path + '/views/error.twig')
+            break
+          case 'vash':
+            copyTemplate('vash/index.vash', path + '/views/index.vash')
+            copyTemplate('vash/layout.vash', path + '/views/layout.vash')
+            copyTemplate('vash/error.vash', path + '/views/error.vash')
             break
         }
         complete()
       })
-    })
 
-    mkdir(path + '/routes', function () {
-      copyTemplate('js/routes/index.js', path + '/routes/index.js')
-      copyTemplate('js/routes/users.js', path + '/routes/users.js')
-      complete()
-    })
+      app.locals.modules.path = 'path'
+      app.locals.modules.favicon = 'serve-favicon'
+      app.locals.modules.cookieParser = 'cookie-parser'
+      app.locals.uses.push("cookieParser()")
+    } else {
+      app.locals.modules.helmet = 'helmet'
+      app.locals.uses.push("helmet()")
+    }
+    app.locals.isAPI = program.api
 
-    mkdir(path + '/views', function () {
-      switch (program.view) {
-        case 'dust':
-          copyTemplate('dust/index.dust', path + '/views/index.dust')
-          copyTemplate('dust/error.dust', path + '/views/error.dust')
-          break
-        case 'ejs':
-          copyTemplate('ejs/index.ejs', path + '/views/index.ejs')
-          copyTemplate('ejs/error.ejs', path + '/views/error.ejs')
-          break
-        case 'jade':
-          copyTemplate('jade/index.jade', path + '/views/index.jade')
-          copyTemplate('jade/layout.jade', path + '/views/layout.jade')
-          copyTemplate('jade/error.jade', path + '/views/error.jade')
-          break
-        case 'hjs':
-          copyTemplate('hogan/index.hjs', path + '/views/index.hjs')
-          copyTemplate('hogan/error.hjs', path + '/views/error.hjs')
-          break
-        case 'hbs':
-          copyTemplate('hbs/index.hbs', path + '/views/index.hbs')
-          copyTemplate('hbs/layout.hbs', path + '/views/layout.hbs')
-          copyTemplate('hbs/error.hbs', path + '/views/error.hbs')
-          break
-        case 'pug':
-          copyTemplate('pug/index.pug', path + '/views/index.pug')
-          copyTemplate('pug/layout.pug', path + '/views/layout.pug')
-          copyTemplate('pug/error.pug', path + '/views/error.pug')
-          break
-        case 'twig':
-          copyTemplate('twig/index.twig', path + '/views/index.twig')
-          copyTemplate('twig/layout.twig', path + '/views/layout.twig')
-          copyTemplate('twig/error.twig', path + '/views/error.twig')
-          break
-        case 'vash':
-          copyTemplate('vash/index.vash', path + '/views/index.vash')
-          copyTemplate('vash/layout.vash', path + '/views/layout.vash')
-          copyTemplate('vash/error.vash', path + '/views/error.vash')
-          break
-      }
-      complete()
-    })
+    if (program.api) {
+      var index = loadTemplate('js/routes/index')
+      var users = loadTemplate('js/routes/users')
+      users.locals.auth = (program.auth === 'jwt' || program.auth === 'passport') 
+                            ? program.auth : undefined
+      mkdir(path + '/routes', function () {
+        write(path + '/routes/index.js', index.render())
+        write(path + '/routes/users.js', users.render())
+        complete()
+      })
+    } else {
+      mkdir(path + '/routes', function () {
+        copyTemplate('js/routes/index.js', path + '/routes/index.js')
+        copyTemplate('js/routes/users.js', path + '/routes/users.js')
+        complete()
+      })
+    }
 
     // CSS Engine support
     switch (program.css) {
@@ -275,12 +300,37 @@ function createApplication (name, path) {
       },
       dependencies: {
         'body-parser': '~1.18.2',
-        'cookie-parser': '~1.4.3',
-        'debug': '~2.6.9',
         'express': '~4.15.5',
         'morgan': '~1.9.0',
-        'serve-favicon': '~2.4.5'
+        'debug': '~2.6.9'
       }
+    }
+
+    if (!program.api) {
+      pkg.dependencies['cookie-parser'] = '~1.4.3'
+      pkg.dependencies['serve-favicon'] = '~2.4.5'
+    } else {
+      pkg.dependencies['helmet'] = '~3.9.0'
+    }
+
+    if (program.mongoose) {
+      pkg.dependencies['mongoose'] = '~2.4.5'
+
+      app.locals.modules.mongoose = 'mongoose'
+      app.locals.mongoose = true
+    }
+
+    switch (program.auth) {
+      case 'jwt': 
+        pkg.dependencies['jsonwebtoken'] = '~8.1.0'
+        pkg.dependencies['bcrypt'] = '~1.0.3'
+        break
+      case 'passport':
+        pkg.dependencies['passport'] = '~0.4.0'
+        pkg.dependencies['passport-jwt'] = '~3.0.1'
+        pkg.dependencies['jwt-simple'] = '~0.5.1'
+        pkg.dependencies['bcrypt'] = '~1.0.3'
+        break
     }
 
     switch (program.view) {
@@ -436,6 +486,14 @@ function main () {
   // App name
   var appName = createAppName(path.resolve(destinationPath)) || 'hello-world'
 
+  if (program.api) {
+    console.log('creating API')
+  }
+
+  if (program.auth === undefined) {
+    program.auth = 'no-auth'
+  }
+
   // View engine
   if (program.view === undefined) {
     if (program.ejs) program.view = 'ejs'
@@ -445,7 +503,7 @@ function main () {
   }
 
   // Default view engine
-  if (program.view === undefined) {
+  if (program.view === undefined && !program.api) {
     warning('the default view engine will not be jade in future releases\n' +
       "use `--view=jade' or `--help' for additional options")
     program.view = 'jade'

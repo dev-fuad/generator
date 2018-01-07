@@ -28,3 +28,11 @@ node_modules
 
 # Debug log from npm
 npm-debug.log
+npm-debug*.log
+
+# Database files
+db
+
+# Batch or Script files
+*.bat
+*.sh

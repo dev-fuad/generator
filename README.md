@@ -21,7 +21,7 @@ The quickest way to get started with express is to utilize the executable `expre
 Create the app:
 
 ```bash
-$ express --view=hbs /tmp/foo && cd /tmp/foo
+$ express  --api --auth=jwt --mongoose /tmp/foo && cd /tmp/foo
 ```
 
 Install dependencies:
@@ -40,16 +40,19 @@ $ npm start
 
 This generator can also be further configured with the following command line flags.
 
-        --version        output the version number
-    -e, --ejs            add ejs engine support
-        --pug            add pug engine support
-        --hbs            add handlebars engine support
-    -H, --hogan          add hogan.js engine support
-    -v, --view <engine>  add view <engine> support (dust|ejs|hbs|hjs|jade|pug|twig|vash) (defaults to jade)
-    -c, --css <engine>   add stylesheet <engine> support (less|stylus|compass|sass) (defaults to plain css)
-        --git            add .gitignore
-    -f, --force          force on non-empty directory
-    -h, --help           output usage information
+        --version               output the version number
+    -e, --ejs                   add ejs engine support
+        --pug                   add pug engine support
+        --hbs                   add handlebars engine support
+    -H, --hogan                 add hogan.js engine support
+    -v, --view <engine>         add view <engine> support (dust|ejs|hbs|hjs|jade|pug|twig|vash) (defaults to jade)
+    -c, --css <engine>          add stylesheet <engine> support (less|stylus|compass|sass) (defaults to plain css)
+        --git                   add .gitignore
+        --api                   clean api template
+        --mongoose              add mongoose
+    -a, --auth <authentication> add authentication support (jwt|passport) (defaults to no-auth)
+    -f, --force                 force on non-empty directory
+    -h, --help                  output usage information
 
 ## License
 

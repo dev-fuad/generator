@@ -229,17 +229,17 @@ function createApplication (name, path) {
       app.locals.modules.path = 'path'
       app.locals.modules.favicon = 'serve-favicon'
       app.locals.modules.cookieParser = 'cookie-parser'
-      app.locals.uses.push("cookieParser()")
+      app.locals.uses.push('cookieParser()')
     } else {
       app.locals.modules.helmet = 'helmet'
-      app.locals.uses.push("helmet()")
+      app.locals.uses.push('helmet()')
     }
     app.locals.isAPI = program.api
 
     if (program.api) {
       var index = loadTemplate('js/routes/index')
       var users = loadTemplate('js/routes/users')
-      users.locals.auth = (program.auth === 'jwt' || program.auth === 'passport') 
+      users.locals.auth = (program.auth === 'jwt' || program.auth === 'passport')
                             ? program.auth : undefined
       mkdir(path + '/routes', function () {
         write(path + '/routes/index.js', index.render())
@@ -321,7 +321,7 @@ function createApplication (name, path) {
     }
 
     switch (program.auth) {
-      case 'jwt': 
+      case 'jwt':
         pkg.dependencies['jsonwebtoken'] = '~8.1.0'
         pkg.dependencies['bcrypt'] = '~1.0.3'
         break
